@@ -1,14 +1,15 @@
 import itertools
 import numpy as np
 from khumeia.roi.bounding_box import BoundingBox
-from khumeia.roi.groundtruth import Groundtruth
+from khumeia.utils import roi_utils
 
 
 class Tile(BoundingBox):
     """
-    Tiles are bbox that represend a location on a large image.
+    Tiles are bbox that represent a location on a large image.
     Functionnaly different than groundtruth
     """
+
     def __init__(self, item_id, x_min, y_min, width, height, padding=0, data_transform_fn=None):
         """
 
@@ -162,7 +163,7 @@ class Tile(BoundingBox):
 
 class LabelledTile(Tile):
     """
-    A tile with label assigned...
+    A tile with label assigned
     """
 
     def __init__(self, item_id, x_min, y_min, width, height, padding=0, label=None, data_transform_fn=None):
@@ -182,43 +183,26 @@ class LabelledTile(Tile):
             item_id, x_min, y_min, width, height, padding=padding, data_transform_fn=data_transform_fn)
         self.label = label
 
-    def set_label_from_bboxes_center(self, bboxes, strict=True):
-        """
-        Center of target inside bbox mode
-        Args:
-            bboxes (list[Groundtruth]):
-            strict
+    @classmethod
+    def from_tile_and_label(cls, tile, label):
+        return cls(
+            item_id=tile.item_id,
+            x_min=tile.x_min,
+            y_min=tile.y_min,
+            width=tile.width,
+            height=tile.height,
+            padding=tile.padding,
+            label=label,
+            data_transform_fn=tile.data_transform_fn)
 
-        Returns:
+    @classmethod
+    def from_tile_and_groundtruths(cls, tile, groundtruths, label_assignment_mode="center", ioa_threshold=0.5):
+        if label_assignment_mode == "center":
+            label = roi_utils.get_label_from_bboxes_center(tile, groundtruths)
+        else:
+            label = roi_utils.get_label_from_bboxes_ioa(tile, groundtruths, ioa_threshold=ioa_threshold)
 
-        """
-        for bbox in bboxes:
-            # TODO: Assignment is trivial in single-class problem but does not work in multi-class
-            if self.contains_point(bbox.center, strict=strict):
-                self.label = bbox.label
-                break
-        if self.label is None:
-            self.label = "background"
-
-    def set_label_from_bboxes_ioa(self, bboxes, ioa_threshold=0.):
-        """
-        Intersection over area mode
-        Args:
-            bboxes (list[Groundtruth]):
-            ioa_threshold:
-
-        Returns:
-
-        """
-        area = self.area
-        for bbox in bboxes:
-            # TODO: Assignment is trivial in single-class problem but does not work in multi-class
-            area_ = self.intersection(bbox).area
-            if area_ / min(area, bbox.area) > ioa_threshold:
-                self.label = bbox.label
-                break
-        if self.label is None:
-            self.label = "background"
+        return cls.from_tile_and_label(tile, label)
 
 
 class PredictionTile(LabelledTile):
@@ -254,6 +238,15 @@ class PredictionTile(LabelledTile):
 
     @classmethod
     def from_labelled_tile_and_prediction(cls, labelled_tile, prediction):
+        """
+
+        Args:
+            labelled_tile (LabelledTile):
+            prediction (str):
+
+        Returns:
+
+        """
         return cls(
             labelled_tile.item_id,
             labelled_tile.x_min,
@@ -270,13 +263,32 @@ class PredictionTile(LabelledTile):
         return self.label == self.predicted_label
 
     @property
+    def is_background(self):
+        return self.label == "background"
+
+    @property
     def is_true_positive(self):
-        return self.is_correct and self.label == "aircraft"
+        """
+        TP = correct prediction and gt label not background
+        Returns:
+
+        """
+        return self.is_correct and not self.is_background
 
     @property
     def is_false_positive(self):
-        return not self.is_correct and self.predicted_label == "aircraft"
+        """
+        FP: incorrect prediction and gt label is background
+        Returns:
+
+        """
+        return not self.is_correct and self.is_background
 
     @property
     def is_false_negative(self):
-        return not self.is_correct and self.predicted_label == "background"
+        """
+        FN: incorrect prediction and gt label is not background
+        Returns:
+
+        """
+        return not self.is_correct and not self.is_background

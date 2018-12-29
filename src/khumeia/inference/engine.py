@@ -1,7 +1,9 @@
-from khumeia import LOGGER
 from tqdm.autonotebook import tqdm
-from khumeia.roi.tile import PredictionTile
+
+from khumeia import LOGGER
+from khumeia.data.dataset import Dataset
 from khumeia.inference.predictor import Predictor
+from khumeia.roi.tile import PredictionTile
 
 
 class InferenceEngine(object):
@@ -11,62 +13,72 @@ class InferenceEngine(object):
     ![](https://cdn-images-1.medium.com/max/1600/1*uLk0eLyS8sYCqXTgEYcO6w.png)
     """
 
-    def __init__(self, items):
-        self.items = items
-
-    @staticmethod
-    def predict_on_item(item, predictor=None, sliding_windows=None):
+    def __init__(self, sliding_windows, predictor):
         """
 
         Args:
-            item(SatelliteImage): the item on which to apply the prediction
-            predictor(Predictor): A Predictor object that encapsulates our model
             sliding_windows(SlidingWindow): The sliding window used to generate candidates
-
-        Returns:
+            predictor(Predictor): A Predictor object that encapsulates our model
 
         """
         if not isinstance(sliding_windows, (list, tuple)):
             sliding_windows = [sliding_windows]
-        LOGGER.info("Generating tiles to predict")
-        tiles_to_predict = []
-        for sliding_window in tqdm(sliding_windows, position=0, desc="Applying slider"):
-            tiles_to_predict.extend(sliding_window.get_tiles_for_item(item))
 
-        tiles_to_predict = list(set(tiles_to_predict))
-        LOGGER.info("Generating predicting on item {} with {} tiles".format(item.key, len(tiles_to_predict)))
+        self.sliding_windows = sliding_windows
+        self.predictor = predictor
+
+    def predict_on_item(self, item):
+        """
+
+        Args:
+            item(SatelliteImage): the item on which to apply the prediction
+
+        Returns:
+
+        """
+
+        LOGGER.info("Generating tiles to predict")
+
+        item_dataset = Dataset(items=[item])
+        tiles = Dataset(items=[])
+        for sliding_window in tqdm(self.sliding_windows, position=0, desc="Applying slider"):
+            tiles = tiles.extend(item_dataset.flatmap(sliding_window))
+
+        tiles = tiles.sample(lambda items: list(set(items)))
+
+        LOGGER.info("Generating predicting on item {} with {} tiles".format(item.key, len(tiles)))
 
         image = item.image
 
-        tiles_results = []
-        if hasattr(predictor, "batch_size") and predictor.batch_size > 1:
-            batches = [
-                tiles_to_predict[i:i + predictor.batch_size]
-                for i in range(0, len(tiles_to_predict), predictor.batch_size)
-            ]
-            for batch in tqdm(
-                    batches, desc="Calling .predict_on_batch() with batch_size {}".format(predictor.batch_size)):
-                batch_data = [tile.get_data(image) for tile in batch]
-                batch_results = predictor.predict_on_batch(batch_data)
-                for i, tile in enumerate(batch):
-                    tiles_results.append(PredictionTile.from_labelled_tile_and_prediction(tile, batch_results[i]))
-        else:
-            for tile in tqdm(tiles_to_predict, desc="Calling .predict() with one tile"):
-                prediction = predictor.predict(tile.get_data(image))
-                tiles_results.append(PredictionTile.from_labelled_tile_and_prediction(tile, prediction))
+        def _batch(items):
+            return [items[i:i + self.predictor.batch_size] for i in range(0, len(items), self.predictor.batch_size)]
+
+        batches = tiles.sample(_batch)
+
+        print(len(tiles))
+        print(len(batches))
+
+        def _predict(batch):
+            batch_data = list(map(lambda tile: tile.get_data(image), batch))
+            batch_results = self.predictor.predict_on_batch(batch_data)
+            batch_results = list(
+                map(lambda tpl: PredictionTile.from_labelled_tile_and_prediction(tpl[0], tpl[1]),
+                    zip(batch, batch_results)))
+
+            return batch_results
+
+        tiles_results = batches.flatmap(_predict, desc="Predicting on batch")
 
         return tiles_results
 
-    def predict_on_items(self, predictor=None, sliding_windows=None):
+    def predict_on_dataset(self, items):
         """
             Apply predictor + sliding window on all items in self.items
         Args:
-            predictor(Predictor): A Predictor object that encapsulates our model
-            sliding_windows(SlidingWindow): The sliding window used to generate candidates
+            items(Dataset):
 
         Returns:
             A list of PredictionTile (Tile + predicted_label + groundtruth label)
 
         """
-        for item in self.items:
-            self.predict_on_item(item, predictor=predictor, sliding_windows=sliding_windows)
+        return items.flatmap(self.predict_on_item)

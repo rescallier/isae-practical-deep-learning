@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-IMAGE_FAMILY="tf-1-11-cpu"
+IMAGE_FAMILY="tf-latest-cpu"
 ZONE="europe-west4-a"
 INSTANCE_NAME="tp-isae-dev-cpu"
 
@@ -11,9 +11,9 @@ gcloud compute instances create ${INSTANCE_NAME} \
   --machine-type=n1-standard-8 \
   --maintenance-policy=TERMINATE \
   --preemptible \
-  --tags=jupyter \
   --scopes default \
-  --scopes storage-rw
+  --scopes storage-rw \
+  --metadata='jupyter-ui=notebook'
 
 #gcloud beta compute --project=deeplearningsps instances create instance-1 \
 # --zone=us-central1-c \

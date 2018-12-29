@@ -1,23 +1,28 @@
-import os
 import json
-import glob
-import khumeia.utils.io
-import numpy as np
-from khumeia import LOGGER
+import os
+
+from khumeia.utils import io_utils
 
 
 class Item(object):
     """
-    An item is a container
+    An item is a container for an image and its labels
     """
 
     @property
     def key(self):
-        """
+        raise NotImplementedError
 
-        Returns:
+    @property
+    def image(self):
+        raise NotImplementedError
 
-        """
+    @property
+    def labels(self):
+        raise NotImplementedError
+
+    @property
+    def shape(self):
         raise NotImplementedError
 
 
@@ -42,36 +47,7 @@ class SatelliteImage(Item):
         self.label_file = label_file
 
     @classmethod
-    def list_items_from_path(cls, path=None):
-        """
-        Get a list of Satellite Images items from path
-
-        Args:
-            path: folder where to look
-
-        Returns:
-            list(SatelliteImageItem):
-        """
-        assert path is not None, "Please set folder variable, likely ${TP_ISAE_DATA}/raw/trainval/"
-
-        LOGGER.info("Looking in {}".format(path))
-        items = []
-        list_images = glob.glob(os.path.join(path, "*.jpg"))
-
-        for image_file in list_images:
-            image_id = os.path.splitext(os.path.basename(image_file))[0]
-            item = SatelliteImage.from_image_id_and_path(image_id, path=path)
-            # Read the when initialising to put data into cache
-            assert isinstance(item.image, np.ndarray)
-            assert isinstance(item.labels, list)
-            items.append(item)
-
-        items = list(sorted(items, key=lambda item: item.key))
-
-        return items
-
-    @classmethod
-    def from_image_id_and_path(cls, image_id, path=None):
+    def from_image_id_and_path(cls, image_id, path):
         """
 
         Args:
@@ -104,7 +80,7 @@ class SatelliteImage(Item):
         Returns:
             np.ndarray: the image data as a int8 (h,w,3) np.ndarray
         """
-        image = khumeia.utils.io.imread(self.image_file)
+        image = io_utils.imread(self.image_file)
         return image
 
     @property
@@ -116,7 +92,7 @@ class SatelliteImage(Item):
             list(Groundtruth): A list of bounding boxes corresponding to the labels
 
         """
-        return khumeia.utils.io.read_aircraft_labels(self.label_file)
+        return io_utils.read_labels(self.label_file)
 
     @property
     def shape(self):
