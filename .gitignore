@@ -8,7 +8,7 @@ __pycache__
 
 data/*
 !khumeia/data/*
-!src/khumeia/data/*
+!teacher/src/khumeia/data/*
 
 *.pptx
 .coverage
