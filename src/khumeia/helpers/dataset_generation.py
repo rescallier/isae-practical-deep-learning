@@ -29,7 +29,7 @@ def items_dataset_from_path(path=None):
     Returns:
         list(SatelliteImageItem):
     """
-    assert path is not None, "Please set folder variable, likely ${TP_ISAE_DATA}/raw/trainval/"
+    assert path is not None, "Please set folder variable, likely ${TP_DATA}/raw/trainval/"
 
     LOGGER.info("Looking in {}".format(path))
     items = []

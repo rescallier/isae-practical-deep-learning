@@ -1,4 +1,5 @@
 geojson
+ipython
 joblib
 jupyter
 keras>=2.2.4

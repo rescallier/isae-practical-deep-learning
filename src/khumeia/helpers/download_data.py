@@ -19,7 +19,7 @@ def _download_data(archive="tp_isae_data.tar.gz", data_dir=None, check_dir=None)
     Returns:
 
     """
-    assert data_dir is not None, "please specify a download dir or better specify TP_ISAE_DATA env variable"
+    assert data_dir is not None, "please specify a download dir or better specify TP_DATA env variable"
 
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
@@ -46,7 +46,7 @@ def download_train_data(data_dir=None):
     Returns:
 
     """
-    data_dir = data_dir or os.path.expandvars(os.environ.get("TP_ISAE_DATA"))
+    data_dir = data_dir or os.path.expandvars(os.environ.get("TP_DATA"))
     LOGGER.info("Downloading training data")
     _download_data(archive="tp_isae_train_data.tar.gz", data_dir=data_dir, check_dir="raw/trainval")
     LOGGER.info("Done. Your training data is located here {}".format(os.path.join(data_dir, "raw", "trainval")))
@@ -61,7 +61,7 @@ def download_eval_data(data_dir=None):
     Returns:
 
     """
-    data_dir = data_dir or os.path.expandvars(os.environ.get("TP_ISAE_DATA"))
+    data_dir = data_dir or os.path.expandvars(os.environ.get("TP_DATA"))
     LOGGER.info("Downloading evaluation data")
     _download_data(archive="tp_isae_eval_data.tar.gz", data_dir=data_dir, check_dir="raw/eval")
     LOGGER.info("Done. Your data is located here {}\n".format(os.path.join(data_dir, "raw", "eval")))
@@ -76,7 +76,7 @@ def _download_test_ci_data(data_dir=None):
     Returns:
 
     """
-    data_dir = data_dir or os.path.expandvars(os.environ.get("TP_ISAE_DATA"))
+    data_dir = data_dir or os.path.expandvars(os.environ.get("TP_DATA"))
     LOGGER.info("Downloading test ci data")
     _download_data(archive="tp_isae_test_ci.tar.gz", data_dir=data_dir)
     LOGGER.info("Done. Your data is located here {}\nYour eval data is located here {}".format(

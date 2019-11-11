@@ -2,8 +2,8 @@ import os
 
 try:
     from joblib import Memory
-    if os.environ.get("TP_ISAE_DATA") is not None:
-        cache_dir = os.path.join(os.path.expandvars(os.environ.get("TP_ISAE_DATA")), "cache")
+    if os.environ.get("TP_DATA") is not None:
+        cache_dir = os.path.join(os.path.expandvars(os.environ.get("TP_DATA")), "cache")
     else:
         cache_dir = "/tmp/cache"
 
