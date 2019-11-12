@@ -2,14 +2,13 @@ import hashlib
 import json
 
 
-class BoundingBox(object):
+class BoundingBox:
     """
     Base bounding box class. A Bounding Box is basically a rectangle with x_min, y_min width and height
     We follow numpy and opencv image conventions:
     (0,0) is top left, x is right and 2nd dim, y is bottom and 1st dim
     So an image is a matrix of shape (height, width, 3) where the three channels are r,g,b
     """
-
     def __init__(self, x_min, y_min, height, width):
         """
 
@@ -84,21 +83,22 @@ class BoundingBox(object):
         """
         return (self.x_min + self.x_max) / 2., (self.y_min + self.y_max) / 2.
 
-    def contains_point(self, point, strict=False):
+    def contains_point(self, point, strict=False, margin=0):
         """
 
         Args:
             point(tuple): (x,y)
             strict: strict inclusion or not
+            margin: point must be within a certain margin of boudaries
 
         Returns:
 
         """
         x, y = point
         if strict:
-            return self.x_min < x < self.x_max and self.y_min < y < self.y_max
+            return self.x_min + margin < x < self.x_max - margin and self.y_min + margin < y < self.y_max - margin
         else:
-            return self.x_min <= x <= self.x_max and self.y_min <= y <= self.y_max
+            return self.x_min + margin <= x <= self.x_max - margin and self.y_min + margin <= y <= self.y_max - margin
 
     def contains(self, bbox):
         """

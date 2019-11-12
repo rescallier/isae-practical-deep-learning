@@ -2,9 +2,8 @@
 Drawing bounding boxes on images helpers
 """
 import cv2
-
-import numpy as np
 import matplotlib.colors
+
 from khumeia.roi.tile import BoundingBox, PredictionTile
 from khumeia.utils import roi_list_utils
 

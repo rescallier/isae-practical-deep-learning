@@ -1,12 +1,12 @@
 from typing import Iterator
+
 from khumeia.roi.tile import PredictionTile
 
 
-class Metric(object):
+class Metric:
     """
 
     """
-
     def compute(self, tiles):
         """
 

@@ -1,8 +1,10 @@
 import json
-import skimage.io
 import warnings
-from khumeia.utils import memory
+
+import skimage.io
+
 from khumeia.roi.groundtruth import Groundtruth
+from khumeia.utils import memory
 
 
 def _read_json(json_file):

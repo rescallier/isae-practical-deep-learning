@@ -3,7 +3,7 @@ import json
 from khumeia.roi.tile import Tile, LabelledTile
 
 
-class SlidingWindow(object):
+class SlidingWindow:
     """
 
     Sliding windows play an integral role in object classification, as they allow us to localize exactly “where” in an
@@ -23,13 +23,13 @@ class SlidingWindow(object):
     (Imagery Courtesy of DigitalGlobe)
 
     """
-
     def __init__(self,
                  tile_size=64,
                  padding=0,
                  stride=64,
                  label_assignment_mode="center",
                  intersection_over_area_threshold=0.5,
+                 margin_from_bounds=0,
                  discard_background=False,
                  data_transform_fn=None):
         """
@@ -42,6 +42,7 @@ class SlidingWindow(object):
                 if center: If a tile contains a groundtruth's center it gets its label
                 if ioa: Calculates the intersection over min(area_tile,area_groundtruth), if the ioa > threshold, then
                 assigns
+            margin_from_bounds: internal margin to use if "center" is selected
             intersection_over_area_threshold(float): threshold
             data_transform_fn: Useful to generate augmented samples or to apply a specific preprocessing
         """
@@ -50,6 +51,7 @@ class SlidingWindow(object):
         self.padding = padding
         self.label_assignment_mode = label_assignment_mode
         self.ioa_threshold = intersection_over_area_threshold
+        self.margin_from_bounds = margin_from_bounds
         self.discard_background = discard_background
         self.data_transform_fn = data_transform_fn
 
@@ -69,15 +71,19 @@ class SlidingWindow(object):
 
         labels = item.labels
 
-        tiles = Tile.get_tiles_for_item(
-            item.key,
-            item.shape,
-            tile_shape=(self.tile_size, self.tile_size),
-            padding=self.padding,
-            stride=float(self.stride) / self.tile_size,
-            data_transform_fn=self.data_transform_fn)
+        tiles = Tile.get_tiles_for_item(item.key,
+                                        item.shape,
+                                        tile_shape=(self.tile_size, self.tile_size),
+                                        padding=self.padding,
+                                        stride=float(self.stride) / self.tile_size,
+                                        data_transform_fn=self.data_transform_fn)
 
-        tiles_with_labels = map(lambda tile: LabelledTile.from_tile_and_groundtruths(tile, labels), tiles)
+        tiles_with_labels = map(
+            lambda tile: LabelledTile.from_tile_and_groundtruths(tile,
+                                                                 labels,
+                                                                 label_assignment_mode=self.label_assignment_mode,
+                                                                 ioa_threshold=self.ioa_threshold,
+                                                                 margin_from_bounds=self.margin_from_bounds), tiles)
 
         if self.discard_background:
             tiles_with_labels = filter(lambda tile: tile.label != "background", tiles_with_labels)

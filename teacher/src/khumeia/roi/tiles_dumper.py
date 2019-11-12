@@ -3,20 +3,27 @@ import os
 from khumeia.utils import io_utils
 
 
-class ItemTileDumper(object):
-    def __init__(self, item, output_dir, save_format="jpg"):
+class ItemTileDumper:
+    def __init__(self, item):
         self.item = item
         self.image = item.image
+
+    def __call__(self, tile):
+        return self.dump_tiles_for_item(tile)
+
+    def dump_tiles_for_item(self, tile):
+        raise NotImplementedError
+
+
+class ImageItemTileDumper(ItemTileDumper):
+    def __init__(self, item, output_dir, save_format="jpg"):
+        super(ImageItemTileDumper, self).__init__(item=item)
         self.output_dir = output_dir
         self.save_format = save_format
 
     def dump_tiles_for_item(self, tile):
         if tile.item_id == self.item.key:
-
-            try:
-                os.makedirs(os.path.join(self.output_dir, tile.label))
-            except OSError:
-                pass
+            os.makedirs(os.path.join(self.output_dir, tile.label), exist_ok=True)
 
             tile_data = tile.get_data(self.image)
             tile_basename = "{}_{}.{}".format(self.item.key, tile.key, self.save_format)
@@ -26,5 +33,12 @@ class ItemTileDumper(object):
         else:
             return None
 
-    def __call__(self, tile):
-        return self.dump_tiles_for_item(tile)
+
+class NpArrayTileDumper(ItemTileDumper):
+    def dump_tiles_for_item(self, tile):
+        if tile.item_id == self.item.key:
+            tile_data = tile.get_data(self.image)
+            tile_label = 0 if tile.label == "background" else 1
+            return tile_data, tile_label
+        else:
+            return None

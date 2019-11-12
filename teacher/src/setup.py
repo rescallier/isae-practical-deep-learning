@@ -4,7 +4,7 @@ import json
 from setuptools import setup, find_packages, Command
 
 NAME = "khumeia"
-VERSION = "1.1.dev0"
+VERSION = "1.1.0.dev0"
 
 if os.path.exists(".branch.version"):
     with open(".branch.version", "r") as f:

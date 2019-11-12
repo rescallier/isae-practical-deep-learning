@@ -10,3 +10,4 @@ scikit-image
 scikit-learn
 scipy
 tqdm>=4.28.1
+loguru

@@ -1,4 +1,4 @@
-class Predictor(object):
+class Predictor:
     """
     A predictor is simply a wrapper over a model to predict aircraft or background
     FN predict_on_tile should return either [aircraft or background]
@@ -6,7 +6,6 @@ class Predictor(object):
 
     It supports batching if you set your batch_size as > 1 (it will then call `predict_on_tiles`)
     """
-
     def __init__(self, batch_size=1):
         self.batch_size = batch_size
 

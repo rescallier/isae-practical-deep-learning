@@ -6,13 +6,12 @@ from khumeia.inference.predictor import Predictor
 from khumeia.roi.tile import PredictionTile
 
 
-class InferenceEngine(object):
+class InferenceEngine:
     """
     Classe qui se comporte comme `Dataset` mais donne accès à la prédiction sur chaque tuile à l'aide d'une fenêtre glissante
 
     ![](https://cdn-images-1.medium.com/max/1600/1*uLk0eLyS8sYCqXTgEYcO6w.png)
     """
-
     def __init__(self, sliding_windows, predictor):
         """
 
@@ -44,7 +43,7 @@ class InferenceEngine(object):
         for sliding_window in tqdm(self.sliding_windows, position=0, desc="Applying slider"):
             tiles = tiles.extend(item_dataset.flatmap(sliding_window))
 
-        tiles = tiles.sample(lambda items: list(set(items)))
+        tiles = tiles.apply(lambda items: list(set(items)))
 
         LOGGER.info("Generating predicting on item {} with {} tiles".format(item.key, len(tiles)))
 
@@ -53,7 +52,7 @@ class InferenceEngine(object):
         def _batch(items):
             return [items[i:i + self.predictor.batch_size] for i in range(0, len(items), self.predictor.batch_size)]
 
-        batches = tiles.sample(_batch)
+        batches = tiles.apply(_batch)
 
         print(len(tiles))
         print(len(batches))

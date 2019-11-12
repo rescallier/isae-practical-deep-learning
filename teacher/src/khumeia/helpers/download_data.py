@@ -49,7 +49,7 @@ def download_train_data(data_dir=None):
     data_dir = data_dir or os.path.expandvars(os.environ.get("TP_DATA"))
     LOGGER.info("Downloading training data")
     _download_data(archive="tp_isae_train_data.tar.gz", data_dir=data_dir, check_dir="raw/trainval")
-    LOGGER.info("Done. Your training data is located here {}".format(os.path.join(data_dir, "raw", "trainval")))
+    LOGGER.info("Done. Your training data is located here {}\n".format(os.path.join(data_dir, "raw", "trainval")))
 
 
 def download_eval_data(data_dir=None):
@@ -65,19 +65,3 @@ def download_eval_data(data_dir=None):
     LOGGER.info("Downloading evaluation data")
     _download_data(archive="tp_isae_eval_data.tar.gz", data_dir=data_dir, check_dir="raw/eval")
     LOGGER.info("Done. Your data is located here {}\n".format(os.path.join(data_dir, "raw", "eval")))
-
-
-def _download_test_ci_data(data_dir=None):
-    """
-    Reserved for CI
-    Args:
-        data_dir:
-
-    Returns:
-
-    """
-    data_dir = data_dir or os.path.expandvars(os.environ.get("TP_DATA"))
-    LOGGER.info("Downloading test ci data")
-    _download_data(archive="tp_isae_test_ci.tar.gz", data_dir=data_dir)
-    LOGGER.info("Done. Your data is located here {}\nYour eval data is located here {}".format(
-        os.path.join(data_dir, "raw"), os.path.join(data_dir, "raw", "eval")))

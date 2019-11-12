@@ -3,18 +3,22 @@ Generating dataset helpers
 """
 import glob
 import os
-import shutil
 import random
-
+import shutil
 import numpy as np
 
-from khumeia.data.item import SatelliteImage
 from khumeia import LOGGER
 from khumeia.data.dataset import Dataset
+from khumeia.data.item import SatelliteImage
 from khumeia.roi.sliding_window import SlidingWindow
-from khumeia.roi.tiles_dumper import ItemTileDumper
+from khumeia.roi.tiles_dumper import ImageItemTileDumper, NpArrayTileDumper
 from khumeia.roi.tiles_sampler import TilesSampler
 from khumeia.utils import roi_list_utils
+
+try:
+    import joblib
+except ImportError:
+    joblib = None
 
 random.seed(2019)
 
@@ -35,22 +39,25 @@ def items_dataset_from_path(path=None):
     items = []
     list_images = glob.glob(os.path.join(path, "*.jpg"))
 
-    for image_file in list_images:
+    def _parse_image(image_file):
         image_id = os.path.splitext(os.path.basename(image_file))[0]
         item = SatelliteImage.from_image_id_and_path(image_id, path)
         # Read the when initialising to put data into cache
-        LOGGER.info("Found item {}".format(item.image_id))
+        # LOGGER.info("Found item {}".format(item.image_id))
         assert isinstance(item.image, np.ndarray)
         assert isinstance(item.labels, list)
-        items.append(item)
+        return item
 
-    items = list(sorted(items, key=lambda item: item.key))
-    LOGGER.info("Found {} items".format(len(items)))
+    dataset = Dataset(items=list_images)
+    dataset = dataset.map(_parse_image, n_jobs=8, desc="Parsing items")
+    dataset.sorted(key=lambda item: item.key)
 
-    return Dataset(items=items)
+    LOGGER.info("Found {} items".format(len(dataset)))
+
+    return dataset
 
 
-def split_dataset(dataset, proportion=0.75, shuffle=True):
+def split_dataset(dataset: Dataset, proportion=0.75, shuffle=True):
     """
     Split dataset
     Args:
@@ -61,16 +68,17 @@ def split_dataset(dataset, proportion=0.75, shuffle=True):
     Returns:
 
     """
+    dataset.sorted(key=lambda sat_im: sat_im.image_id)
     if shuffle:
         random.shuffle(dataset.items)
 
-    dataset_1 = dataset.sample(lambda items: items[:int(proportion * len(items))])
-    dataset_2 = dataset.sample(lambda items: items[int(proportion * len(items)):])
+    dataset_1 = dataset.apply(lambda items: items[:int(proportion * len(items))])
+    dataset_2 = dataset.apply(lambda items: items[int(proportion * len(items)):])
 
     return dataset_1, dataset_2
 
 
-def generate_candidate_tiles_from_items(items_dataset, sliding_windows, n_jobs=1):
+def generate_candidate_tiles_from_items(items_dataset: Dataset, sliding_windows: [SlidingWindow], n_jobs=1):
     """
         High level helper function
         Apply a sliding window over each satellite image
@@ -94,13 +102,13 @@ def generate_candidate_tiles_from_items(items_dataset, sliding_windows, n_jobs=1
         tiles_dataset = tiles_dataset.extend(
             items_dataset.flatmap(sliding_window, desc="Applying sliding window", n_jobs=n_jobs))
 
-    tiles_dataset = tiles_dataset.sample(lambda items: list(set(items)))
+    tiles_dataset = tiles_dataset.apply(lambda items: list(set(items)))
     LOGGER.info("State of dataset")
     LOGGER.info(roi_list_utils.get_state(tiles_dataset.items))
     return tiles_dataset
 
 
-def sample_tiles_from_candidates(tiles_dataset, tiles_samplers):
+def sample_tiles_from_candidates(tiles_dataset: Dataset, tiles_samplers: [TilesSampler]):
     """
         High level helper function
         Apply a sampler over each satellite image's candidate tiles
@@ -119,7 +127,7 @@ def sample_tiles_from_candidates(tiles_dataset, tiles_samplers):
 
     for tiles_sampler in tiles_samplers:
         LOGGER.info(tiles_sampler)
-        sampled_dataset = sampled_dataset.extend(tiles_dataset.sample(tiles_sampler))
+        sampled_dataset = sampled_dataset.extend(tiles_dataset.apply(tiles_sampler))
         LOGGER.info("Tiles sampled, now generate the dataset using Dataset.generate_tiles_dataset")
 
     LOGGER.info(roi_list_utils.get_state(sampled_dataset.items))
@@ -127,7 +135,11 @@ def sample_tiles_from_candidates(tiles_dataset, tiles_samplers):
     return sampled_dataset
 
 
-def dump_dataset_tiles(tiles_dataset, items_dataset, output_dir, remove_first=False, save_format="jpg"):
+def dump_dataset_tiles(tiles_dataset: Dataset,
+                       items_dataset: Dataset,
+                       output_dir=None,
+                       remove_first=False,
+                       save_format="jpg"):
     """
         High level helper function
         Actually generates training images from the dataset.sampled_tiles (= regions of interest)
@@ -162,7 +174,7 @@ def dump_dataset_tiles(tiles_dataset, items_dataset, output_dir, remove_first=Fa
 
     """
     LOGGER.info("Generating a dataset of tiles at location {}".format(output_dir))
-    if remove_first:
+    if remove_first and output_dir is not None:
         try:
             shutil.rmtree(output_dir)
         except FileNotFoundError:
@@ -170,7 +182,10 @@ def dump_dataset_tiles(tiles_dataset, items_dataset, output_dir, remove_first=Fa
 
     def _dump_tiles(item):
         LOGGER.info("Dumping for item {}".format(item.key))
-        tiles_dumper = ItemTileDumper(item, output_dir=output_dir, save_format=save_format)
+        if output_dir is not None:
+            tiles_dumper = ImageItemTileDumper(item, output_dir=output_dir, save_format=save_format)
+        else:
+            tiles_dumper = NpArrayTileDumper(item)
         tiles_dataset_ = tiles_dataset.filter(lambda tile: tile.item_id == item.key, desc="Filtering")
         tiles_dataset_ = tiles_dataset_.map(tiles_dumper, desc="Saving tiles to {}".format(output_dir))
 

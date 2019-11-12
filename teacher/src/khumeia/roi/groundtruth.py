@@ -5,7 +5,6 @@ class Groundtruth(BoundingBox):
     """
     A bbox with a label. Used to represent objects
     """
-
     def __init__(self, x_min, y_min, width, height, label):
         """
 

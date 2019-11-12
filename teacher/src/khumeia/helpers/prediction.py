@@ -3,7 +3,7 @@ High level helpers for predicting. Contains mainly a tool to automatically conve
 a Predictor class
 """
 import numpy as np
-from keras.models import Model
+
 from khumeia.inference.predictor import Predictor
 
 
@@ -45,5 +45,7 @@ def keras_model_to_predictor(keras_model, batch_size=32, decision_threshold=0.5,
     Returns:
 
     """
-    return KerasPredictor(
-        model=keras_model, batch_size=batch_size, decision_threshold=decision_threshold, rescale=rescale)
+    return KerasPredictor(model=keras_model,
+                          batch_size=batch_size,
+                          decision_threshold=decision_threshold,
+                          rescale=rescale)

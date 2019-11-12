@@ -1,4 +1,5 @@
 import itertools
+from typing import Callable, Optional, Any, List
 
 from tqdm.autonotebook import tqdm
 
@@ -8,17 +9,17 @@ except ImportError:
     joblib = None
 
 
-class Dataset(object):
-    def __init__(self, items):
+class Dataset:
+    def __init__(self, items: [Any]):
         self.items = items
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.items)
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: int) -> Any:
         return self.items[item]
 
-    def map(self, func, desc=None, n_jobs=1):
+    def map(self, func: Callable, desc: Optional[str] = None, n_jobs=1) -> 'Dataset':
         if n_jobs > 1 and joblib is not None:
             items = joblib.Parallel(n_jobs=n_jobs)(joblib.delayed(func)(item) for item in tqdm(self.items, desc=desc))
         else:
@@ -26,7 +27,7 @@ class Dataset(object):
 
         return Dataset(items=list(items))
 
-    def flatmap(self, func, desc=None, n_jobs=1):
+    def flatmap(self, func: Callable, desc: Optional[str] = None, n_jobs=1) -> 'Dataset':
         if n_jobs > 1 and joblib is not None:
             items = joblib.Parallel(n_jobs=n_jobs)(joblib.delayed(func)(item) for item in tqdm(self.items, desc=desc))
         else:
@@ -36,11 +37,20 @@ class Dataset(object):
 
         return Dataset(items=list(items))
 
-    def filter(self, func, desc=None):
+    def filter(self, func: Callable[[Any], bool], desc=None) -> 'Dataset':
         return Dataset(items=list(filter(func, tqdm(self.items, desc=desc))))
 
-    def sample(self, sampler):
-        return Dataset(items=sampler(self.items))
+    def apply(self, func: Callable[[List[Any]], List[Any]]) -> 'Dataset':
+        return Dataset(items=func(self.items))
 
-    def extend(self, dataset):
+    def extend(self, dataset: 'Dataset') -> 'Dataset':
         return Dataset(items=self.items + dataset.items)
+
+    def append(self, item: Any):
+        self.items.append(item)
+
+    def sorted(self, key: Optional[Callable] = None):
+        if key is not None:
+            self.items = sorted(self.items, key=key)
+        else:
+            self.items = sorted(self.items)

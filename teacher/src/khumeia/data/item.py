@@ -4,11 +4,10 @@ import os
 from khumeia.utils import io_utils
 
 
-class Item(object):
+class Item:
     """
     An item is a container for an image and its labels
     """
-
     @property
     def key(self):
         raise NotImplementedError
@@ -33,7 +32,6 @@ class SatelliteImage(Item):
     Contains image and labels as properties (cached via joblib to avoid loading the same image n times and to avoid ram overflow)
     The labels are automatically parsed as BoundingBoxes
     """
-
     def __init__(self, image_id, image_file, label_file):
         """
 
