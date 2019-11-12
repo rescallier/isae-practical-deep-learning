@@ -30,14 +30,15 @@ Florient CHOUTEAU, Matthieu LE GOFF, Marina GRUET
 
 ### Who we are
 
-<img src="static/img/airbus.png" alt="" width="220px" height="45px" style="background:white; border:none; box-shadow:none; position: fixed; top: 10%; right: 10%;"/>
 
-- Computer Vision R&D at Airbus Defence and Space*  
+- Computer Vision R&D at Airbus Defence and Space
+<img src="static/img/airbus_logo_white.png" alt="" width="220px" height="44px" style="background:none; border:none; box-shadow:none;"/>
 - Ground segment software for earth observation satellites
 - Working daily with Deep Learning on satellite imagery
     - Information extraction (object detection, change detection...)
     - Image processing (clouds, image enhancement)
     - Research stuff (image simulation, self-supervision...)
+    
 
 -- 
 
@@ -154,4 +155,3 @@ florient.f.chouteau@airbus.com
 matthieu.le-goff@airbus.com  
 marina.gruet@airbus.com  
 
-We are hiring (in Ground System Department)

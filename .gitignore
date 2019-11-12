@@ -6,9 +6,7 @@ __pycache__
 .pytest_cache
 *.pyc
 
-data/*
-!khumeia/data/*
-!teacher/src/khumeia/data/*
+teacher/data
 
 *.pptx
 .coverage
