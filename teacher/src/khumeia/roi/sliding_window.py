@@ -1,5 +1,9 @@
 import json
+import rtree.index
+from typing import Callable, Optional
 
+from khumeia.data.item import SatelliteImage
+from khumeia.roi.bounding_box import BoundingBox
 from khumeia.roi.tile import Tile, LabelledTile
 
 
@@ -24,14 +28,14 @@ class SlidingWindow:
 
     """
     def __init__(self,
-                 tile_size=64,
-                 padding=0,
-                 stride=64,
-                 label_assignment_mode="center",
-                 intersection_over_area_threshold=0.5,
-                 margin_from_bounds=0,
-                 discard_background=False,
-                 data_transform_fn=None):
+                 tile_size: int = 64,
+                 padding: int = 0,
+                 stride: int = 64,
+                 label_assignment_mode: str = "center",
+                 intersection_over_area_threshold: float = 0.5,
+                 margin_from_bounds: int = 0,
+                 discard_background: bool = False,
+                 data_transform_fn: Optional[Callable] = None):
         """
 
         Args:
@@ -55,17 +59,25 @@ class SlidingWindow:
         self.discard_background = discard_background
         self.data_transform_fn = data_transform_fn
 
-    def get_tiles_for_item(self, item):
+    @staticmethod
+    def make_index(bboxes: [BoundingBox]) -> rtree.index.Index:
+        indx = rtree.index.Index()
+        for i, bbox in enumerate(bboxes):
+            indx.insert(i, bbox.bounds)
+
+        return indx
+
+    def get_tiles_for_item(self, item: SatelliteImage) -> [LabelledTile]:
         """
             Apply the sliding window on a full satellite images to generate a list of tiles
             Compares the tiles to the item's groundtruths
             Tiles that matches the declared conditions are assigned with the groundtruth's label
 
         Args:
-            item(tp_isae_helpers.satellite_image.SatelliteImage): input item
+            item: input item
 
         Returns:
-            list[LabelledTile]: A list of tile with their labels
+            A list of tile with their labels
 
         """
 
@@ -78,19 +90,25 @@ class SlidingWindow:
                                         stride=float(self.stride) / self.tile_size,
                                         data_transform_fn=self.data_transform_fn)
 
-        tiles_with_labels = map(
-            lambda tile: LabelledTile.from_tile_and_groundtruths(tile,
-                                                                 labels,
-                                                                 label_assignment_mode=self.label_assignment_mode,
-                                                                 ioa_threshold=self.ioa_threshold,
-                                                                 margin_from_bounds=self.margin_from_bounds), tiles)
+        labels_index = self.make_index(labels)
+
+        def _get_labelled_tile(t: Tile):
+            intersecting_labels = list(labels_index.intersection(t.bounds))
+            intersecting_labels = [labels[i] for i in intersecting_labels]
+            return LabelledTile.from_tile_and_groundtruths(t,
+                                                           intersecting_labels,
+                                                           label_assignment_mode=self.label_assignment_mode,
+                                                           ioa_threshold=self.ioa_threshold,
+                                                           margin_from_bounds=self.margin_from_bounds)
+
+        tiles_with_labels = map(_get_labelled_tile, tiles)
 
         if self.discard_background:
             tiles_with_labels = filter(lambda tile: tile.label != "background", tiles_with_labels)
 
-        return tiles_with_labels
+        return list(tiles_with_labels)
 
-    def __call__(self, item):
+    def __call__(self, item: SatelliteImage) -> [LabelledTile]:
         return self.get_tiles_for_item(item)
 
     def __repr__(self):

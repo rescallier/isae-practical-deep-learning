@@ -53,7 +53,7 @@ class TilesSampler:
         self.with_replacement = with_replacement
         self.shuffle = shuffle
 
-    def _sample_n_tiles_from_list(self, tiles, nb_tiles_max):
+    def _sample_n_tiles_from_list(self, tiles: [Tile], nb_tiles_max: int) -> [Tile]:
         """
         Select `nb_tiles_max` tiles from the list `tiles`. If `with_replacement`, then selects exactly this amount,
         else selects min(len(tiles),nb_tiles_max))
@@ -76,18 +76,18 @@ class TilesSampler:
 
         return [tiles[tiles_idx[idx % nb_candidates]] for idx in range(nb_tiles_max)]
 
-    def sample_tiles_from_candidates(self, candidate_tiles):
+    def sample_tiles_from_candidates(self, candidate_tiles: [Tile]) -> ['Tile']:
         """
         Apply the sampling logic of this class to a list of `candidates`
         Args:
-            candidate_tiles(list[Tiles]): List of regions of interest to apply the sampler on
+            candidate_tiles: List of regions of interest to apply the sampler on
 
         Returns:
             list[Tiles]: Sampled list
         """
         raise NotImplementedError
 
-    def __call__(self, candidate_tiles):
+    def __call__(self, candidate_tiles: [Tile]) -> ['Tile']:
         return self.sample_tiles_from_candidates(candidate_tiles)
 
     def __str__(self):

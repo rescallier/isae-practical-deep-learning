@@ -1,6 +1,9 @@
 import json
 import os
 
+import numpy as np
+
+from khumeia.roi.groundtruth import Groundtruth
 from khumeia.utils import io_utils
 
 
@@ -32,7 +35,7 @@ class SatelliteImage(Item):
     Contains image and labels as properties (cached via joblib to avoid loading the same image n times and to avoid ram overflow)
     The labels are automatically parsed as BoundingBoxes
     """
-    def __init__(self, image_id, image_file, label_file):
+    def __init__(self, image_id: str, image_file: str, label_file: str):
         """
 
         Args:
@@ -45,7 +48,7 @@ class SatelliteImage(Item):
         self.label_file = label_file
 
     @classmethod
-    def from_image_id_and_path(cls, image_id, path):
+    def from_image_id_and_path(cls, image_id: str, path: str) -> 'SatelliteImage':
         """
 
         Args:
@@ -61,7 +64,7 @@ class SatelliteImage(Item):
         return cls(image_id=image_id, image_file=image_file, label_file=label_file)
 
     @property
-    def key(self):
+    def key(self) -> str:
         """
         An unique identifier of the Item class used to for matching
 
@@ -72,7 +75,7 @@ class SatelliteImage(Item):
         return self.image_id
 
     @property
-    def image(self):
+    def image(self) -> np.ndarray:
         """
         Read image data (wrapper around skimage.imread)
         Returns:
@@ -82,7 +85,7 @@ class SatelliteImage(Item):
         return image
 
     @property
-    def labels(self):
+    def labels(self) -> [Groundtruth]:
         """
         Get the labels of a satellite image (load json and decode labels)
 
@@ -93,7 +96,7 @@ class SatelliteImage(Item):
         return io_utils.read_labels(self.label_file)
 
     @property
-    def shape(self):
+    def shape(self) -> (int, int, int):
         """
         Get the shape of the array (wrapper around self.image.shape)
 

@@ -3,12 +3,14 @@ Drawing bounding boxes on images helpers
 """
 import cv2
 import matplotlib.colors
+import numpy as np
 
-from khumeia.roi.tile import BoundingBox, PredictionTile
+from khumeia.data.item import SatelliteImage
+from khumeia.roi.tile import BoundingBox, PredictionTile, LabelledTile
 from khumeia.utils import roi_list_utils
 
 
-def _convert_color(color_str):
+def _convert_color(color_str: str):
     """
     https://matplotlib.org/examples/color/named_colors.html
     Args:
@@ -28,14 +30,14 @@ def _convert_color(color_str):
         return color_str
 
 
-def draw_bbox_on_image(image, bbox, color="lime", thickness=2):
+def draw_bbox_on_image(image: np.ndarray, bbox: BoundingBox, color: str = "lime", thickness: int = 2) -> np.ndarray:
     """
     Draw one BoundingBox to an image using cv2.rectangle
     Args:
-        image(np.ndarray): A (h,w,3) 8-bit array representing the image
-        bbox(BoundingBox):
-        color(str): A matplotlib color compatible color
-        thickness(int): A thickness value
+        image: A (h,w,3) 8-bit array representing the image
+        bbox:
+        color: A matplotlib color compatible color
+        thickness: A thickness value
 
     Returns:
         The same `image` but with the bounding box drawn on it
@@ -46,17 +48,9 @@ def draw_bbox_on_image(image, bbox, color="lime", thickness=2):
     return image
 
 
-def draw_bboxes_on_image(image, bboxes, color="lime", thickness=2):
+def draw_bboxes_on_image(image: np.ndarray, bboxes: [BoundingBox], color="lime", thickness=2) -> np.ndarray:
     """
     Draw BoundingBoxes to an image using cv2.rectangle
-    Args:
-        image:
-        bboxes:
-        color:
-        thickness:
-
-    Returns:
-
     """
     color = _convert_color(color)
     for bbox in bboxes:
@@ -64,14 +58,9 @@ def draw_bboxes_on_image(image, bboxes, color="lime", thickness=2):
     return image
 
 
-def draw_item(item):
+def draw_item(item: SatelliteImage) -> np.ndarray:
     """
         Draw an item labels on its image
-    Args:
-        item:
-
-    Returns:
-
     """
     image = item.image
     labels = item.labels
@@ -79,15 +68,9 @@ def draw_item(item):
     return image
 
 
-def draw_item_with_tiles(item, tiles=None):
+def draw_item_with_tiles(item: SatelliteImage, tiles: [LabelledTile] = None) -> np.ndarray:
     """
         Draw an item labels on its images as well as the tiles in tiles
-    Args:
-        item:
-        tiles(list[LabelledTIles]):
-
-    Returns:
-
     """
     image = draw_item(item)
     if tiles is not None:
@@ -100,15 +83,9 @@ def draw_item_with_tiles(item, tiles=None):
     return image
 
 
-def draw_item_with_results(item, results=None):
+def draw_item_with_results(item: SatelliteImage, results: [PredictionTile] = None) -> np.ndarray:
     """
         Draw an item labels on its images as well as the PredictionTiles in Tiles
-    Args:
-        item:
-        results(list[PredictionTile]):
-
-    Returns:
-
     """
     image = draw_item(item)
     if results is not None:

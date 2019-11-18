@@ -1,13 +1,15 @@
 import json
 import warnings
+from typing import Dict
 
+import numpy as np
 import skimage.io
 
 from khumeia.roi.groundtruth import Groundtruth
 from khumeia.utils import memory
 
 
-def _read_json(json_file):
+def _read_json(json_file: str) -> Dict:
     with open(json_file, 'r') as f:
         return json.load(f)
 
@@ -20,7 +22,7 @@ else:
     read_json = _read_json
 
 
-def read_labels(labels_file, default_label="aircraft"):
+def read_labels(labels_file: str, default_label="aircraft") -> [Groundtruth]:
     labels_data = read_json(labels_file)
     labels = []
     for label in labels_data['markers']:
@@ -30,7 +32,7 @@ def read_labels(labels_file, default_label="aircraft"):
     return labels
 
 
-def imsave(fname, arr):
+def imsave(fname: str, arr: np.ndarray):
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         skimage.io.imsave(fname, arr)

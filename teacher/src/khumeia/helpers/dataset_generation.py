@@ -5,6 +5,8 @@ import glob
 import os
 import random
 import shutil
+from typing import Optional
+
 import numpy as np
 
 from khumeia import LOGGER
@@ -23,7 +25,7 @@ except ImportError:
 random.seed(2019)
 
 
-def items_dataset_from_path(path=None):
+def items_dataset_from_path(path: Optional[str] = None) -> [SatelliteImage]:
     """
     Get a list of Satellite Images items from path
 
@@ -31,7 +33,6 @@ def items_dataset_from_path(path=None):
         path: folder where to look
 
     Returns:
-        list(SatelliteImageItem):
     """
     assert path is not None, "Please set folder variable, likely ${TP_DATA}/raw/trainval/"
 
@@ -57,7 +58,7 @@ def items_dataset_from_path(path=None):
     return dataset
 
 
-def split_dataset(dataset: Dataset, proportion=0.75, shuffle=True):
+def split_dataset(dataset: Dataset, proportion=0.75, shuffle=True) -> (Dataset, Dataset):
     """
     Split dataset
     Args:
@@ -78,7 +79,8 @@ def split_dataset(dataset: Dataset, proportion=0.75, shuffle=True):
     return dataset_1, dataset_2
 
 
-def generate_candidate_tiles_from_items(items_dataset: Dataset, sliding_windows: [SlidingWindow], n_jobs=1):
+def generate_candidate_tiles_from_items(items_dataset: Dataset, sliding_windows: [SlidingWindow],
+                                        n_jobs: int = 1) -> Dataset:
     """
         High level helper function
         Apply a sliding window over each satellite image
@@ -108,7 +110,7 @@ def generate_candidate_tiles_from_items(items_dataset: Dataset, sliding_windows:
     return tiles_dataset
 
 
-def sample_tiles_from_candidates(tiles_dataset: Dataset, tiles_samplers: [TilesSampler]):
+def sample_tiles_from_candidates(tiles_dataset: Dataset, tiles_samplers: [TilesSampler]) -> Dataset:
     """
         High level helper function
         Apply a sampler over each satellite image's candidate tiles
@@ -139,7 +141,7 @@ def dump_dataset_tiles(tiles_dataset: Dataset,
                        items_dataset: Dataset,
                        output_dir=None,
                        remove_first=False,
-                       save_format="jpg"):
+                       save_format="jpg") -> Dataset:
     """
         High level helper function
         Actually generates training images from the dataset.sampled_tiles (= regions of interest)

@@ -9,14 +9,8 @@ class BoundingBox:
     (0,0) is top left, x is right and 2nd dim, y is bottom and 1st dim
     So an image is a matrix of shape (height, width, 3) where the three channels are r,g,b
     """
-    def __init__(self, x_min, y_min, height, width):
+    def __init__(self, x_min: int, y_min: int, height: int, width: int):
         """
-
-        Args:
-            x_min:
-            y_min:
-            height:
-            width:
         """
         self.height = int(height)
         self.width = int(width)
@@ -24,7 +18,7 @@ class BoundingBox:
         self.y_min = int(y_min)
 
     @classmethod
-    def from_bounds(cls, x_min, y_min, x_max, y_max):
+    def from_bounds(cls, x_min: int, y_min: int, x_max: int, y_max: int):
         """
             Creates a BBox from x1,y1,x2,y2 instead of x1,y1,height,width
         Args:
@@ -48,7 +42,7 @@ class BoundingBox:
         }
 
     @property
-    def area(self):
+    def area(self) -> int:
         """
 
         Returns: the area of the bbox
@@ -57,7 +51,7 @@ class BoundingBox:
         return self.width * self.height
 
     @property
-    def x_max(self):
+    def x_max(self) -> int:
         """
 
         Returns:
@@ -66,7 +60,7 @@ class BoundingBox:
         return self.x_min + self.width
 
     @property
-    def y_max(self):
+    def y_max(self) -> int:
         """
 
         Returns:
@@ -75,7 +69,11 @@ class BoundingBox:
         return self.y_min + self.height
 
     @property
-    def center(self):
+    def bounds(self) -> (int, int, int, int):
+        return self.x_min, self.y_min, self.x_max, self.y_max
+
+    @property
+    def center(self) -> (float, float):
         """
 
         Returns: (x,y) the center (float) of the bbox
@@ -83,7 +81,7 @@ class BoundingBox:
         """
         return (self.x_min + self.x_max) / 2., (self.y_min + self.y_max) / 2.
 
-    def contains_point(self, point, strict=False, margin=0):
+    def contains_point(self, point: (int, int), strict=False, margin=0) -> bool:
         """
 
         Args:
@@ -100,7 +98,7 @@ class BoundingBox:
         else:
             return self.x_min + margin <= x <= self.x_max - margin and self.y_min + margin <= y <= self.y_max - margin
 
-    def contains(self, bbox):
+    def contains(self, bbox: 'BoundingBox') -> bool:
         """
 
         Args:
@@ -114,7 +112,7 @@ class BoundingBox:
                bbox.y_min >= self.x_min and \
                bbox.y_max <= self.y_max
 
-    def intersects(self, bbox):
+    def intersects(self, bbox: 'BoundingBox') -> bool:
         """
 
         Args:
@@ -130,7 +128,7 @@ class BoundingBox:
 
         return x_min < x_max and y_min < y_max
 
-    def intersection(self, bbox):
+    def intersection(self, bbox: 'BoundingBox') -> 'BoundingBox':
         """
 
         Args:
@@ -148,7 +146,7 @@ class BoundingBox:
         else:
             return BoundingBox(x_min=self.x_min, y_min=self.y_min, height=0, width=0)
 
-    def iou(self, bbox):
+    def iou(self, bbox: 'BoundingBox') -> float:
         """
 
         Args:
@@ -167,7 +165,7 @@ class BoundingBox:
             y_max = min(self.y_max, bbox.y_max)
             return (x_max - x_min) * (y_max - y_min) / (self.area + bbox.area - (x_max - x_min) * (y_max - y_min))
 
-    def translate(self, x_off, y_off):
+    def translate(self, x_off: int, y_off: int):
         """
 
         Args:

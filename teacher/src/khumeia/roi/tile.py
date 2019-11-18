@@ -1,8 +1,10 @@
 import itertools
+from typing import Optional, Callable
 
 import numpy as np
 
 from khumeia.roi.bounding_box import BoundingBox
+from khumeia.roi.groundtruth import Groundtruth
 from khumeia.utils import roi_utils
 
 
@@ -11,17 +13,15 @@ class Tile(BoundingBox):
     Tiles are bbox that represent a location on a large image.
     Functionnaly different than groundtruth
     """
-    def __init__(self, item_id, x_min, y_min, width, height, padding=0, data_transform_fn=None):
+    def __init__(self,
+                 item_id: str,
+                 x_min: int,
+                 y_min: int,
+                 width: int,
+                 height: int,
+                 padding: int = 0,
+                 data_transform_fn: Optional[Callable] = None):
         """
-
-        Args:
-            item_id:
-            x_min:
-            y_min:
-            width:
-            height:
-            padding:
-            data_transform_fn:
         """
         super(Tile, self).__init__(x_min=x_min, y_min=y_min, width=width, height=height)
         self.item_id = item_id
@@ -30,13 +30,13 @@ class Tile(BoundingBox):
 
     @classmethod
     def get_tiles_for_item(cls,
-                           item_id,
-                           im_shape,
-                           tile_shape,
+                           item_id: str,
+                           im_shape: [int],
+                           tile_shape: [int],
                            padding=0,
                            stride=1.,
                            offset=(0, 0),
-                           data_transform_fn=None):
+                           data_transform_fn=None) -> ['Tile']:
         """
 
         Args:
@@ -75,7 +75,7 @@ class Tile(BoundingBox):
         return tiles
 
     @property
-    def padded_bounds(self):
+    def padded_bounds(self) -> [int]:
         """
 
         Returns:
@@ -88,14 +88,14 @@ class Tile(BoundingBox):
             self.y_min + self.width + self.padding,
         )
 
-    def get_data(self, image):
+    def get_data(self, image: np.ndarray) -> np.ndarray:
         """
         Get the data with padding management from a dataset
         Note: since padded bounds can go to outside the image height, width, there are calculations
         to correctly pad the array with zeros
 
         Args:
-            image(np.ndarray):
+            image:
 
         Returns:
             np.ndarray RGB 8 bits from Dataset
@@ -122,7 +122,7 @@ class Tile(BoundingBox):
         else:
             return self.data_transform_fn(data)
 
-    def bboxes_to_absolute_coords(self, bboxes):
+    def bboxes_to_absolute_coords(self, bboxes: [BoundingBox]) -> [BoundingBox]:
         """
 
         Args:
@@ -133,7 +133,7 @@ class Tile(BoundingBox):
         """
         return [bbox.translate(self.padded_bounds[0], self.padded_bounds[1]) for bbox in bboxes]
 
-    def bboxes_to_relative_coords(self, bboxes):
+    def bboxes_to_relative_coords(self, bboxes: [BoundingBox]) -> [BoundingBox]:
         """
 
         Args:
@@ -144,7 +144,7 @@ class Tile(BoundingBox):
         """
         return [bbox.translate(-self.padded_bounds[0], -self.padded_bounds[1]) for bbox in bboxes]
 
-    def filter_inside(self, bboxes, to_relative_coordinates=False):
+    def filter_inside(self, bboxes: [BoundingBox], to_relative_coordinates=False) -> [BoundingBox]:
         """
 
         Args:
@@ -200,8 +200,8 @@ class LabelledTile(Tile):
 
     @classmethod
     def from_tile_and_groundtruths(cls,
-                                   tile,
-                                   groundtruths,
+                                   tile: Tile,
+                                   groundtruths: [Groundtruth],
                                    label_assignment_mode="center",
                                    ioa_threshold=0.5,
                                    margin_from_bounds=0):
