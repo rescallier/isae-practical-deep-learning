@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from khumeia.roi.tile import Tile, LabelledTile
 
 
@@ -88,10 +90,12 @@ def get_state(tiles_list):
     found_labels = get_labels_in_list(tiles_list)
     item_keys = get_items_in_list(tiles_list)
 
-    s = ""
-    s += "--- TilesDataset ---\n"
-    s += "Found labels {}\n".format(found_labels)
+    global_stats = defaultdict(int)
 
+    s = ""
+    s += "--- Tiles Dataset ---\n"
+    s += "Found labels {}\n".format(found_labels)
+    s += "-- Per item stats --\n"
     if item_keys is not None:
         for item_key in item_keys:
             nb_tiles = len(filter_tiles_by_item(tiles_list, item_key))
@@ -99,5 +103,9 @@ def get_state(tiles_list):
             for label in found_labels:
                 nb_tiles = len(filter_tiles_by_item_by_label(tiles_list, item_key, label))
                 s += "Item {}: Label {}: {} rois\n".format(item_key, label, nb_tiles)
+                global_stats[label] += nb_tiles
+    s += "-- Global stats --\n"
+    for label in global_stats:
+        s += "Label {}: {} rois\n".format(label, global_stats[label])
 
     return s

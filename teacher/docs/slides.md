@@ -11,22 +11,23 @@ revealOptions:
 ---
 
 # Deep Learning in Practice
-**ISAE-SUPAERO, December 2019**
 
-Florient CHOUTEAU, Matthieu LE GOFF, Marina GRUET
+**ISAE-SUPAERO, SDD, December 2019**
 
---
+Florient CHOUTEAU, Marina GRUET, Matthieu LE GOFF
 
-6 hours hands on session on applying "deep learning" to a "real" use-case
+---
 
-<img src="static/img/dog_meme.jpg" alt="" width="512px" height="390px" style="background:none; border:none; box-shadow:none;"/>
-
--- 
 ## Detect Aircrafts on Satellite Imagery
 
 ![](static/img/aircrafts.gif)
 
 --
+6 hours hands on session on applying "deep learning" to a "real" use-case
+
+<img src="static/img/dog_meme.jpg" alt="" width="512px" height="390px" style="background:none; border:none; box-shadow:none;"/>
+
+-- 
 
 ### Who we are
 
@@ -44,7 +45,7 @@ Florient CHOUTEAU, Matthieu LE GOFF, Marina GRUET
 
 ### Context
 
-...
+<img src="static/img/context.png" alt="" width="80%" height="80%" style="background:white; border:none; box-shadow:none;"/>
 
 -- 
 
@@ -96,14 +97,14 @@ Train an aircraft detector on a dataset of aircrafts and "not aircrafts"
 
 ---
 
-## Session 2: High-level framework, class imbalance, predicting on large images
+## Session 2: High-level framework, class imbalance, sliding windows
 
 --
 
 ### Objectives
 
 - Train a CNN on a larger & imbalanced dataset
-- Plot the PR curve of your model
+- Diagnose the performance of a model on imbalanced data
 - Apply your model on larger images to detect aircrafts
 
 --
@@ -127,6 +128,7 @@ Train an aircraft detector on a dataset of aircrafts and "not aircrafts"
 1. Start/Restart your machine
 2. Follow notebooks 2 and 3
 
+![](https://i.stack.imgur.com/U9Iki.png)
 
 --- 
 
