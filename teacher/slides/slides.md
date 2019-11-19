@@ -2,8 +2,8 @@
 title: ISAE Practical Deep Learning Session
 theme: solarized
 highlightTheme: solarized-light
-separator: ---
-verticalSeparator: --
+separator: <!--s-->
+verticalSeparator: <!--v-->
 revealOptions:
     transition: 'fade'
     transitionSpeed: 'default'
@@ -16,18 +16,29 @@ revealOptions:
 
 Florient CHOUTEAU, Marina GRUET, Matthieu LE GOFF
 
----
+<!--s-->
 
 ## Detect Aircrafts on Satellite Imagery
 
 ![](static/img/aircrafts.gif)
 
---
+<!--v-->
+
 6 hours hands on session on applying "deep learning" to a "real" use-case
 
 <img src="static/img/dog_meme.jpg" alt="" width="512px" height="390px" style="background:none; border:none; box-shadow:none;"/>
 
--- 
+<!--v-->
+<!-- .slide: data-background="http://i.giphy.com/90F8aUepslB84.gif" -->
+
+### Lesson #1
+
+These slides are built using [reveal.js](https://revealjs.com) and [reveal-md](
+https://github.com/webpro/reveal-md)
+
+This is awesome ! Stop using powerpoint !
+
+<!--v-->
 
 ### Who we are
 
@@ -40,14 +51,13 @@ Florient CHOUTEAU, Marina GRUET, Matthieu LE GOFF
     - Image processing (clouds, image enhancement)
     - Research stuff (image simulation, self-supervision...)
     
-
--- 
+<!--v-->
 
 ### Context
 
 <img src="static/img/context.png" alt="" width="80%" height="80%" style="background:white; border:none; box-shadow:none;"/>
 
--- 
+<!--v-->
 
 ### What we are going to do
 
@@ -59,11 +69,11 @@ Train an aircraft detector on a dataset of aircrafts and "not aircrafts"
 
 <img src="static/img/aiplatform.png" alt="" width="170px" height="150px" style="background:white; border:none; box-shadow:none;"/>
 
----
+<!--s-->
 
 ## Session 1: Hands-On
 
---
+<!--v-->
 
 ### Objectives
 
@@ -71,7 +81,7 @@ Train an aircraft detector on a dataset of aircrafts and "not aircrafts"
 - Train a basic CNN on a small training set
 - Plot the ROC curve on a small test set
 
--- 
+<!--v-->
 
 ### Outcomes
 
@@ -79,13 +89,13 @@ Train an aircraft detector on a dataset of aircrafts and "not aircrafts"
 - Handle a dataset of images, do some basic data exploration
 - Review the basics of training Neural Network with Pytorch
 
---
+<!--v-->
 
 ### Dataset description
 
 *Include dataset description*
 
---
+<!--v-->
 
 ### Steps by steps
 
@@ -95,11 +105,11 @@ Train an aircraft detector on a dataset of aircrafts and "not aircrafts"
 4. Profit !
 5. If you're done... go to Session 2 !
 
----
+<!--s-->
 
 ## Session 2: High-level framework, class imbalance, sliding windows
 
---
+<!--v-->
 
 ### Objectives
 
@@ -107,13 +117,13 @@ Train an aircraft detector on a dataset of aircrafts and "not aircrafts"
 - Diagnose the performance of a model on imbalanced data
 - Apply your model on larger images to detect aircrafts
 
---
+<!--v-->
 
 ### Dataset description
 
 *Include dataset description*
 
---
+<!--v-->
 
 ### Outcomes
 
@@ -122,7 +132,8 @@ Train an aircraft detector on a dataset of aircrafts and "not aircrafts"
 - Discover Precision-Recall Curves
 - Discover applying models on larger images using the sliding window technique
 
--- 
+<!--v-->
+
 ### Steps by steps
 
 1. Start/Restart your machine
@@ -130,27 +141,27 @@ Train an aircraft detector on a dataset of aircrafts and "not aircrafts"
 
 ![](https://i.stack.imgur.com/U9Iki.png)
 
---- 
+<!--s-->
 
 ## Creating our GCP Deep Learning VM
 
---
+<!--v-->
 
 *Include step by step tutorial*
 
---- 
+<!--s-->
 
 ## Concluding remarks
 
---
+<!--v-->
 
 Welcome to the life of a deep learning engineer !
 
---
+<!--v-->
 
 ![](static/img/tesla.jpg)
 
---
+<!--v-->
 
 Contact:  
 florient.f.chouteau@airbus.com  
