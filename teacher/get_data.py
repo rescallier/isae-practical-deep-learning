@@ -1,7 +1,6 @@
 import glob
 import json
 import os
-import shutil
 import subprocess
 
 import pandas as pd
@@ -38,6 +37,10 @@ def download_data(raw_data_dir):
     for outlier in outliers:
         try:
             os.remove(os.path.join(raw_data_dir, "trainval", outlier))
+        except FileNotFoundError:
+            pass
+        try:
+            os.remove(os.path.join(raw_data_dir, "eval", outlier))
         except FileNotFoundError:
             pass
 
