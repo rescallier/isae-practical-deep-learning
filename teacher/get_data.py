@@ -1,9 +1,9 @@
 import glob
 import json
 import os
-import subprocess
 
 import pandas as pd
+import subprocess
 
 
 def download_data(raw_data_dir):
@@ -88,9 +88,8 @@ def make_image_ids(raw_data_dir):
 
 
 if __name__ == '__main__':
-
-    raw_data_dir = os.path.join(
-        os.environ.get("TP_DATA") or "/home/fchouteau/classes/isae-practical-deep-learning/teacher/data/", "raw")
+    raw_data_dir = os.environ.get("TP_DATA") or os.path.dirname(os.path.abspath(__file__))
+    raw_data_dir = os.path.join(raw_data_dir, "data", "raw")
 
     download_data(raw_data_dir)
     make_image_ids(raw_data_dir)
